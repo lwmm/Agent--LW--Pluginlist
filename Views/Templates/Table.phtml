@@ -1,15 +1,21 @@
 <script type="text/javascript" src="<?php echo $this->bootstrapJS ?>"></script>
 <link rel="stylesheet" href="<?php echo $this->bootstrapCSS ?>" />
-<script type="text/javascript" src="<?php echo $this->SRCdataTables; ?>"></script>
-<link href="<?php echo $this->SRCdataTablesCSS ?>" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="<?php echo $this->SRCspin ?>"></script>
 <script type="text/javascript" src="<?php echo $this->SRCspinmin ?>"></script>
+<link rel="stylesheet" href="<?php echo $this->jqueryUICss ?>" />
+<link href="<?php echo $this->dataTablesDemoCSS ?>" rel="stylesheet" type="text/css"/>
+<link href="<?php echo $this->dataTablesJUICSS ?>" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="<?php echo $this->dataTablesJS; ?>"></script>
 <script>
     $(document).ready(function() {
-        $('#epluginlist').dataTable({
+        $('#pluginlist').dataTable({
             "bJQueryUI": true,
             "sPaginationType": "full_numbers",
-            "aoColumns": [{"bSortable": false}, null, null, {"bSotable": false}],
+            <?php if ($this->cmdd == "listall"): ?>
+                "aoColumns": [null, null],
+            <?php else: ?>
+                "aoColumns": [null, null, null, {"bSortable": false}],
+            <?php endif; ?>
             "bStateSave": true
         });
         $('#startscan').click(function() {
@@ -34,6 +40,15 @@
 
 
 <style>
+    .clearfix:after {
+        content: ".";
+        display: block;
+        clear: both;
+        visibility: hidden;
+        line-height: 0;
+        height: 0;
+    }
+
     body{background-color: #7F7F7F!important}
 
     #lw_fe_inputelement_lw_formular_template{width: 800px;height: 600px;}
@@ -81,7 +96,13 @@
         border-radius: 10px;
         padding: 10px;
     }
+    
 
+    
+    #pluginlist{font-weight: bold;margin: 0;}
+    #pluginlist thead th{cursor: pointer;}
+    
+    .table-hover tbody tr:hover td, .table-hover tbody tr:hover th {background-color: #eee;}
 </style>
 
 <fieldset class="lwadminform">
@@ -116,52 +137,84 @@
         self.location.href = '<?php echo $this->link_scan; ?>';
            " value="<?php echo $this->linktext_scan; ?>">
 
+        <?php if ($this->cmdd == "listall"): ?>
+            <div class="clearfix" style="float:right;font-weight: bold;">Legende: Plugin <span style="color:green;">in Verwendung</span> / <span style="color:darkred;">nicht in Verwendung</span></div>
+        <?php else :?>
+            <div class="clearfix" style="float:right;font-weight: bold;">Legende: Aufruf eines <span style="color:green;">installierten</span> / <span style="color:darkred;">nicht installierten</span> Plugins</div>
+        <?php endif; ?>
         <div style="margin-top: 10px;"><span style="font-size: 14px;">Anzeige : <span style="font-size: 16px;font-weight: bold;font-style: italic;"><?php echo $this->title; ?></span></span>
         <span style="text-align: right;font-size: 14px;font-weight: bold;float: right;">Last Scan: <?php echo $this->lastscandate; ?></span>
         </div>
 
-
-        <table id="pluginlist" class="table table-bordered table-hover" width="100%">
-            <thead>
-                <tr>
-                    <th width="5%">ID</th>
-                    <th width="15%">Typ</th>
-                    <th width="20%">Name</th>
-                    <th width="60%">Plugin Aufruf</th>
-                </tr>
-            </thead>
-
-            <tbody>
-                <?php foreach ($this->array as $entry) : ?>
+        <div id="datatable_container">
+            <table id="pluginlist" class="table table-bordered table-hover" width="100%">
+                <thead>
                     <tr>
-                            <?php
-                            if ($this->cmdd == "listall") {
-                                $green = false;
-                                foreach ($this->array2 as $arrEntry) {
-                                    if ($arrEntry["plugin_name"] == $entry["plugin_name"]) {
+                        <th>Name</th>
+                        <?php if ($this->cmdd == "listall"): ?>
+                            <th>Modul</th>
+                        <?php else: ?>
+                            <th>Typ</th>
+                            <th>Plugin Aufruf</th>
+                            <th>&nbsp;</th>
+                        <?php endif; ?>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    <?php foreach ($this->array as $entry) : ?>
+                        <tr>
+                                <?php
+                                if ($this->cmdd == "listall") {
+                                    $green = false;
+                                    foreach ($this->array2 as $arrEntry) {
+                                        if ($arrEntry["plugin_name"] == $entry["plugin_name"]) {
+                                            $green = true;
+                                        }
+                                    }
+                                }
+                                else {
+                                    foreach ($this->array2 as $arrEntry) {
+                                        $pluginnameArray[] = $arrEntry["plugin_name"];
+                                    } 
+                                    if(!(in_array($entry["plugin_name"], $pluginnameArray))){
+                                        $green = false;
+                                    }
+                                    else {
                                         $green = true;
                                     }
                                 }
-                            }
-                            else {
-                                foreach ($this->array2 as $arrEntry) {
-                                    $pluginnameArray[] = $arrEntry["plugin_name"];
-                                } 
-                                if(!(in_array($entry["plugin_name"], $pluginnameArray))){
-                                    $green = false;
-                                }
-                                else {
-                                    $green = true;
-                                }
-                            }
-                            ?>
-                        <td <?php if ($green) { echo "style=\"color: green\";"; } else { echo "style=\"color: darkred\";";} ?> ><?php echo $entry["id"]; ?>&nbsp;</td>
-                        <td <?php if ($green) { echo "style=\"color: green\";"; } else { echo "style=\"color: darkred\";";} ?> ><?php echo $entry["typ"]; ?></td>
-                        <td <?php if ($green) { echo "style=\"color: green\";"; } else { echo "style=\"color: darkred\";";} ?> ><?php echo $entry["name"]; ?></td>
-                        <td <?php if ($green) { echo "style=\"color: green\";"; } else { echo "style=\"color: darkred\";";} ?> ><?php echo $entry["plugin_aufruf"]; ?></td>
-                    </tr>		
-                <?php endforeach; ?>
-            </tbody>
-        </table>
+                                ?>
+                            <td <?php if ($green) { echo "style=\"color: green;\""; } else { echo "style=\"color: darkred;\"";} ?> ><?php echo $entry["name"]; ?></td>
+
+                            <?php if ($this->cmdd != "listall"): ?>
+                                <td <?php if ($green) { echo "style=\"color: green;\""; } else { echo "style=\"color: darkred;\"";} ?> ><?php echo $entry["typ"]; ?></td>
+                            <?php endif; ?>
+
+                            <td <?php if ($green) { echo "style=\"color: green;\""; } else { echo "style=\"color: darkred;\"";} ?> ><?php echo $entry["plugin_aufruf"]; ?></td>
+
+                            <?php if ($this->cmdd != "listall"): ?>
+                                <td <?php if ($green) { echo "style=\"color: green;\""; } else { echo "style=\"color: darkred;\"";} ?> ><a href="
+                                    <?php 
+                                        if($entry["typ"] == "Template") {
+                                            echo $this->baseUrl."?obj=template&cmd=edit&tid=".$entry["id"];
+                                        }
+                                        elseif($entry["typ"] == "CObject"){
+                                            echo $this->baseUrl."?obj=cobject&cmd=edit&cobject=".$entry["id"];
+                                        }elseif($entry["typ"] == "Page"){
+                                            $firstLetter = substr($entry["plugin_aufruf"], 0,1);
+                                            if($firstLetter == "M"){
+                                                echo $this->baseUrl."?obj=content&index=".$entry["id"]."&container=c1";
+                                            }else{
+                                                echo $this->baseUrl."?obj=content&index=".$entry["id"]."&container=c2";
+                                            }
+                                        };
+                                    ?>" style="background-color: transparent;padding: 5px;display: block;"><i class="icon-share-alt"></i></a></td>
+                            <?php endif; ?>
+                        </tr>		
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
+        </div>
     </div>
 </fieldset>

@@ -34,7 +34,8 @@ class agent_pluginlist extends lw_agent
 
     protected function buildNav()
     {
-        return '<div class="lwBoxLeftnavi" onClick="changeUrl(\'admin.php?obj=admin\');">zur&uuml;ck</div>';
+        $view = new \AgentPluginlist\Views\Navigation();
+        return $view->render();
     }
 
     protected function deleteAllowed()

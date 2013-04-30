@@ -24,9 +24,7 @@ class ConfigDataCollector
         foreach ($this->config["plugin_path"] as $dir) {
             $this->checkExistingPlugins($dir, "modules");
         }
-
-        $this->existsSavingDirectory();
-        \lw_io::writeFile($this->config["path"]["web_resource"] . "agent_pluginlist/datacollection_config.txt", serialize($this->arr));
+        \lw_io::writeFile($this->config["path"]["resource"] . "agent_pluginlist/available_plugins.txt", serialize($this->arr));
     }
 
     function existsConfigPathPlugins()
@@ -49,7 +47,7 @@ class ConfigDataCollector
         if (!empty($directories)) {
             foreach ($directories as $directory) {
                 if ($modulesOrPluginsDir == modules) {
-                    $plugin_aufruf = "Modul: " . str_replace("/", "", str_replace("/", "", str_replace($this->config["path"]["server"] . "modules/", "", $directory->getBasePath())));
+                    $plugin_aufruf = "" . str_replace("/", "", str_replace("/", "", str_replace($this->config["path"]["server"] . "modules/", "", $directory->getBasePath())));
                 }
                 else {
                     $plugin_aufruf = "Plugin: " . $directory->getName();
@@ -63,24 +61,6 @@ class ConfigDataCollector
                         )
                 );
             }
-        }
-    }
-    
-    function existsSavingDirectory($justCheckIfExists = false)
-    {
-        $directory = \lw_directory::getInstance($this->config["path"]["web_resource"]);
-        $directories = $directory->getDirectoryContents("dir");
-        foreach ($directories as $dir) {
-            $contentArray[] = $dir->getName();
-        }
-        if (!(in_array("agent_pluginlist/", $contentArray))) {
-            if ($justCheckIfExists == false) {
-                $directory->add("agent_pluginlist");
-                \lw_io::writeFile($this->config["path"]["web_resource"] . "agent_pluginlist/.htaccess", "Deny from all");
-            }
-        }
-        else {
-            return true;
         }
     }
 }

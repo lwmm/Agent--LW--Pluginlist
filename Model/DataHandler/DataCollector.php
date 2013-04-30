@@ -40,8 +40,7 @@ class DataCollector
             $this->search_plugincall_page($entry);
         }
 
-        $this->existsSavingDirectory();
-        \lw_io::writeFile($this->config["path"]["web_resource"] . "agent_pluginlist/datacollection.txt", serialize($this->arr));
+        \lw_io::writeFile($this->config["path"]["resource"] . "agent_pluginlist/used_plugins.txt", serialize($this->arr));
         \AgentPluginlist\Services\Page::reload($this->config["url"]["client"] . "admin.php?obj=pluginlist");
     }
 
@@ -123,23 +122,4 @@ class DataCollector
 
         return $pluginname;
     }
-
-    function existsSavingDirectory($justCheckIfExists = false)
-    {
-        $directory = \lw_directory::getInstance($this->config["path"]["web_resource"]);
-        $directories = $directory->getDirectoryContents("dir");
-        foreach ($directories as $dir) {
-            $contentArray[] = $dir->getName();
-        }
-        if (!(in_array("agent_pluginlist/", $contentArray))) {
-            if ($justCheckIfExists == false) {
-                $directory->add("agent_pluginlist");
-                \lw_io::writeFile($this->config["path"]["web_resource"] . "agent_pluginlist/.htaccess", "Deny from all");
-            }
-        }
-        else {
-            return true;
-        }
-    }
-
 }
