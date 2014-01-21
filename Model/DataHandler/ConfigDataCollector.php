@@ -42,12 +42,14 @@ class ConfigDataCollector
     function checkExistingPlugins($directoryPath, $modulesOrPluginsDir)
     {
         $dir = \lw_directory::getInstance($directoryPath);
+        $basePath = $dir->getBasePath();
+        
         $directories = $dir->getDirectoryContents("dir");
 
         if (!empty($directories)) {
             foreach ($directories as $directory) {
                 if ($modulesOrPluginsDir == modules) {
-                    $plugin_aufruf = "" . str_replace("/", "", str_replace("/", "", str_replace($this->config["path"]["server"] . "modules/", "", $directory->getBasePath())));
+                    $plugin_aufruf = "" . str_replace("/", "", str_replace("/", "", str_replace($basePath, "", $directory->getBasePath())));
                 }
                 else {
                     $plugin_aufruf = "Plugin: " . $directory->getName();
